@@ -19,13 +19,7 @@ Note: To verify the password you need to press `TAB` not `Enter`.
 
 ## SConfig configuration
 
-You are now in `SConfig` and want to configure your `Machine name` with a memorable name by typing `2` in the main menu and your `Network settings` afterwards by typing `8` in the main menu, select your primary `Network adapter` with the appropriate number and `S` to set a static IP address, subnet mask and a default gateway. Type `2` now to configure your DNS with a public DNS e.g. `1.1.1.1` or `8.8.8.8` or one provided from your Internet service provider. You may want to come back here later if you want to use this machine as your local DNS resolver after installing `Active Directory`, in which case you will enter 127.0.0.1. If you already have something like this, such as a `Pi-Hole` using `dnsmasq` as a DNS forwarder or `Unbound` as resolver, you'll want to enter it's IP here now. 
-
-
-To exit to `PowerShell` from `SConfig` main menu, type `15` and press Enter.
-
-
-Note: You can start `PowerShell` with `powershell` if you are in `cmd`!
+You are now in `SConfig` and want to configure your `Machine name` with a memorable name by typing `2` in the main menu - restart when you are finished with this block - and your `Network settings` afterwards by typing `8` in the main menu, select your primary `Network adapter` with the appropriate number and `S` to set a static IP address, subnet mask and a default gateway. Type `2` now to configure your DNS with a public DNS e.g. `1.1.1.1` or `8.8.8.8` or one provided from your Internet service provider.
 
 ## Install the SSH Server
 
@@ -49,8 +43,9 @@ Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/downloa
 
 Start-Process msiexec.exe -Wait -ArgumentList '/I', "$env:TEMP\PowerShell-7.2.0-win-x64.msi"
 ```
+Note: You can start `PowerShell` with `powershell` if you are in `cmd` which is the default as of now if you connect via SSH!
 
-## Set Powershell as default shell
+## Set Powershell as default shell for SSH connections
 
 `Set-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Program Files\PowerShell\7\pwsh.exe"`
 
@@ -75,6 +70,7 @@ Now that you have a basic setup running, you can use SSH again and back up the s
 ## Install Active Directory
 
 One does not simply remove a domain controller from a server easily, that's why we backed up our system beforehand in case something goes wrong with our upcoming AD environment!
+Go back to SConfig and change your DNS to `127.0.0.1`.
 
 ```
 Install-WindowsFeature AD-Domain-Services
@@ -88,9 +84,10 @@ From a Windows 10 client, ping the domain and if you get a response, open `Run` 
 
 
 Note: If you don't get a successful ping, there may be a problem with your DNS or Firewall setup!
+Make sure to set the IP address of the Windows Server as primary DNS in your Windows client.
 
 
-After the restart log in with `AD/Administrator`. After the initialization of the user profile, press `Windows key + I` to open the `Settings` and search for ´Add an optional feature´. Click on `Add a feature` at the top of the window and install `RSAT: Active Directory Domain Services and Lightweight Directory Services Tools`. Now open `Active Directory Users and Computers` and configure your `Active Directory` by clicking on your domain in the left pane and right click in the right pane, hover over `New` and click on `User` and fill out the form with your `First- and Last name`, `Initials` and a `User logon name`. Click on `Next >` and provide a password for the account. You can then log in with `AD/<User logon name>`.
+After the restart log in with `AD/Administrator`. After the initialization of the user profile, press `Windows key + I` to open the `Settings` and search for `Add an optional feature`. Click on `Add a feature` at the top of the window and install `RSAT: Active Directory Domain Services and Lightweight Directory Services Tools`. Now open `Active Directory Users and Computers` and configure your `Active Directory` by clicking on your domain in the left pane and right click in the right pane, hover over `New` and click on `User` and fill out the form with your `First- and Last name`, `Initials` and a `User logon name`. Click on `Next >` and provide a password for the account. You can then log in with `AD/<User logon name>`.
 
 If you want to use your existing settings from your local user account as an AD user, the easiest way is to copy over the files from your `C:\Users\<USERNAME>` directory as an `Administrator`. Press `Windows key + R`, type in `%USERPROFILE%` and click on `View` in the top bar of the `Explorer` and tick the checkbox `Hidden items`. Copy everything to your new profile and overwrite everything and skip some files when prompted. If you need to migrate many accounts you can use the [User State Migration Tool](https://learn.microsoft.com/en-us/windows/deployment/usmt/usmt-overview).
 
